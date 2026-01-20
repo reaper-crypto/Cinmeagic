@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CINEMAGIC - Booking Confirmed</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" style="text-decoration: none;"><h1 class="logo">CINEMAGIC</h1></a>
+                <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="index.html">Movies</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    
+    <section class="confirmation-section">
+        <div class="container">
+            <div class="confirmation-card">
+                <div class="success-icon">✓</div>
+                <h2 class="success-title">Your ticket has been booked successfully!</h2>
+                <p class="success-message">Thank you for choosing CINEMAGIC. Your booking has been confirmed.</p>
+
+                <div class="ticket-details">
+                    <h3>Booking Details</h3>
+                    <div class="ticket-info" id="confirmation-details">
+                        
+                    </div>
+                </div>
+
+                <div class="important-info">
+                    <h3>📌 Important Information</h3>
+                    <ul>
+                        <li>Please arrive at least 15 minutes before the show time</li>
+                        <li>Carry a valid ID proof for verification</li>
+                        <li>Outside food and beverages are not allowed</li>
+                        <li>Your transaction ID serves as your booking confirmation</li>
+                        <li>Screenshots of this page can be used as proof of booking</li>
+                    </ul>
+                </div>
+
+                <div class="confirmation-actions">
+                    <button class="btn btn-secondary" onclick="printTicket()">Print Ticket</button>
+                    <button class="btn btn-primary" onclick="bookAnother()">Book Another Movie</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 CINEMAGIC. All rights reserved.</p>
+        </div>
+    </footer>
+
+    
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const data = await loadJSONData();
+            if (data) {
+                displayConfirmation(data);
+                updateUIFromJSON(data);
+            }
+        });
+        function displayConfirmation(data) {
+            const movieId = parseInt(localStorage.getItem('selectedMovieId'));
+            const movie = data.movies.find(m => m.id === movieId);
+            const selectedDate = localStorage.getItem('selectedDate');
+            const selectedTime = localStorage.getItem('selectedTime');
+            const selectedSeats = JSON.parse(localStorage.getItem('selectedSeats') || '[]');
+            const totalPrice = localStorage.getItem('totalPrice');
+            const transactionId = localStorage.getItem('transactionId');
+            const currency = data.currency.symbol;
+
+            document.getElementById('confirmation-details').innerHTML = `
+                <div class="ticket-row">
+                    <strong>Movie:</strong>
+                    <span>${movie.name}</span>
+                </div>
+                <div class="ticket-row">
+                    <strong>Date:</strong>
+                    <span>${formatDate(selectedDate)}</span>
+                </div>
+                <div class="ticket-row">
+                    <strong>Time:</strong>
+                    <span>${selectedTime}</span>
+                </div>
+                <div class="ticket-row">
+                    <strong>Seats:</strong>
+                    <span>${selectedSeats.join(', ')}</span>
+                </div>
+                <div class="ticket-row">
+                    <strong>Number of Tickets:</strong>
+                    <span>${selectedSeats.length}</span>
+                </div>
+                <div class="ticket-row">
+                    <strong>Transaction ID:</strong>
+                    <span>${transactionId}</span>
+                </div>
+                <div class="ticket-row total-row">
+                    <strong>Total Paid:</strong>
+                    <span>${currency}${totalPrice}</span>
+                </div>
+            `;
+        }
+        function bookAnother() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+        function printTicket() {
+            window.print();
+        }
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+        }
+    </script>
+</body>
+</html>

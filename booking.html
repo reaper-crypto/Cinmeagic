@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CINEMAGIC - Select Showtime</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" style="text-decoration: none;"><h1 class="logo">CINEMAGIC</h1></a>
+                <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="index.html">Movies</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    
+    <section class="booking-section">
+        <div class="container">
+            <h2 class="section-title">Select Showtime</h2>
+            <div class="underline"></div>
+
+            
+            <div class="movie-details-card" id="movie-details">
+                
+            </div>
+
+            
+            <div class="selection-group">
+                <h3>Choose Date</h3>
+                <div id="date-buttons" class="date-buttons">
+                    
+                </div>
+            </div>
+
+            
+            <div class="selection-group">
+                <h3>Choose Time</h3>
+                <div id="time-buttons" class="time-buttons">
+                    
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-large" onclick="proceedToSeats()">Proceed to Seat Selection</button>
+        </div>
+    </section>
+
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 CINEMAGIC. All rights reserved.</p>
+        </div>
+    </footer>
+
+    
+    <script src="script.js"></script>
+    <script>
+        let selectedDate = null;
+        let selectedTime = null;
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const data = await loadJSONData();
+            if (data) {
+                displayMovieDetails(data);
+                generateDates(data);
+                generateTimes(data);
+                updateUIFromJSON(data);
+            }
+        });
+        function displayMovieDetails(data) {
+            const movieId = parseInt(localStorage.getItem('selectedMovieId'));
+            const movie = data.movies.find(m => m.id === movieId);
+            
+            if (!movie) {
+                alert('No movie selected. Redirecting to home.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const currency = data.currency.symbol;
+            document.getElementById('movie-details').innerHTML = `
+                <div class="movie-poster-small" style="background-image: url('${movie.poster}'); background-size: cover; background-position: center;">${movie.poster.startsWith('http') ? '' : movie.poster}</div>
+                <div class="movie-info-detailed">
+                    <h2>${movie.name}</h2>
+                    <p><strong>Genre:</strong> ${movie.genre}</p>
+                    <p><strong>Duration:</strong> ${movie.duration}</p>
+                    <p><strong>Rating:</strong> ⭐ ${movie.rating}/10</p>
+                    <p class="price-info"><strong>Base Price:</strong> ${currency}${movie.baseTicketPrice}</p>
+                </div>
+            `;
+        }
+        function generateDates(data) {
+            const dateContainer = document.getElementById('date-buttons');
+            const daysCount = data.schedule.availableDatesCount;
+            const dates = getNextDates(daysCount);
+            
+            dateContainer.innerHTML = dates.map((date, index) => `
+                <button class="date-btn" onclick="selectDate('${date}')">
+                    ${index === 0 ? 'Today' : formatDateDisplay(date)}
+                </button>
+            `).join('');
+        }
+        function generateTimes(data) {
+            const timeContainer = document.getElementById('time-buttons');
+            const times = data.schedule.availableTimes;
+            
+            timeContainer.innerHTML = times.map(time => `
+                <button class="time-btn" onclick="selectTime('${time}')">${time}</button>
+            `).join('');
+        }
+        function selectDate(date) {
+            selectedDate = date;
+            document.querySelectorAll('.date-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+        function selectTime(time) {
+            selectedTime = time;
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+        function proceedToSeats() {
+            if (!selectedDate) {
+                alert('Please select a date');
+                return;
+            }
+            if (!selectedTime) {
+                alert('Please select a showtime');
+                return;
+            }
+            localStorage.setItem('selectedDate', selectedDate);
+            localStorage.setItem('selectedTime', selectedTime);
+            window.location.href = 'seats.html';
+        }
+        function getNextDates(count) {
+            const dates = [];
+            const today = new Date();
+            for (let i = 0; i < count; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                dates.push(date.toISOString().split('T')[0]);
+            }
+            return dates;
+        }
+        function formatDateDisplay(dateString) {
+            const date = new Date(dateString);
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
+        }
+    </script>
+</body>
+</html>

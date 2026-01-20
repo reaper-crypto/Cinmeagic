@@ -1,0 +1,566 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CINEMAGIC - Now Showing</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" style="text-decoration: none;"><h1 class="logo">CINEMAGIC</h1></a>
+                <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="index.html" class="active">Movies</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    
+    <section class="movies-section">
+        <div class="container">
+            <h2 class="section-title">Now Showing</h2>
+            <div class="underline"></div>
+            
+            
+            <div id="movies-grid" class="movies-grid">
+                
+            </div>
+        </div>
+    </section>
+
+    
+    <section id="about" class="about-section">
+        <div class="container">
+            <h2 class="section-title">About CINEMAGIC</h2>
+            <div class="underline"></div>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>Welcome to <strong>CINEMAGIC</strong>, your premier destination for unforgettable movie experiences! Since our inception, we've been dedicated to bringing the magic of cinema to life, offering movie enthusiasts a seamless and enjoyable way to book their favorite films.</p>
+                    
+                    <p>At CINEMAGIC, we believe that going to the movies should be more than just watching a film – it's about creating memories, sharing experiences, and immersing yourself in storytelling at its finest. Our state-of-the-art facilities feature cutting-edge projection and sound systems, ensuring every movie is experienced exactly as the filmmakers intended.</p>
+                    
+                    <h3>Our Mission</h3>
+                    <p>To provide an exceptional cinema experience that combines comfort, technology, and outstanding customer service. We're committed to making every visit memorable, from the moment you book your tickets online to the final credits rolling on screen.</p>
+                    
+                    <h3>Why Choose CINEMAGIC?</h3>
+                    <ul class="about-features">
+                        <li>🎬 <strong>Latest Releases:</strong> Access to the newest blockbusters and critically acclaimed films</li>
+                        <li>🪑 <strong>Premium Comfort:</strong> Luxurious seating with optimal viewing angles</li>
+                        <li>💻 <strong>Easy Online Booking:</strong> Book your tickets anytime, anywhere with our user-friendly platform</li>
+                        <li>🎯 <strong>Flexible Seating:</strong> Choose your preferred seats with our interactive seat selection</li>
+                        <li>🍿 <strong>Complete Experience:</strong> Full concessions and amenities for your enjoyment</li>
+                        <li>💳 <strong>Secure Payments:</strong> Safe and convenient payment options</li>
+                    </ul>
+                    
+                    <p>Join thousands of movie lovers who have made CINEMAGIC their go-to cinema destination. We're not just showing movies – we're creating experiences that last a lifetime.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <h2 class="section-title">Contact Us</h2>
+            <div class="underline"></div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="info-card">
+                        <div class="info-icon">📍</div>
+                        <h3>Visit Us</h3>
+                        <p>Uttara Cinema Street<br>Dhaka<br>Uttara Sector 10, </p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">📞</div>
+                        <h3>Call Us</h3>
+                        <p>Main: +880 1234-567890<br>Bookings: +880 1234-567891<br>Customer Service: +880 1234-567892</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">✉️</div>
+                        <h3>Email Us</h3>
+                        <p>info@cinemagic.com<br>support@cinemagic.com<br>bookings@cinemagic.com</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">🕒</div>
+                        <h3>Operating Hours</h3>
+                        <p>Monday - Thursday: 10:00 AM - 11:00 PM<br>Friday - Sunday: 10:00 AM - 1:00 AM<br>Public Holidays: 9:00 AM - 1:00 AM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 CINEMAGIC. All rights reserved. | Your Premier Movie Experience</p>
+        </div>
+    </footer>
+
+    
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const data = await loadJSONData();
+            if (data) {
+                displayMovies(data);
+                updateUIFromJSON(data);
+            }
+        });
+        function displayMovies(data) {
+            const moviesGrid = document.getElementById('movies-grid');
+            const currency = data.currency.symbol;
+            
+            moviesGrid.innerHTML = data.movies.map(movie => `
+                <div class="movie-card">
+                    <div class="movie-poster" style="background-image: url('${movie.poster}'); background-size: cover; background-position: center;">${movie.poster.startsWith('http') ? '' : movie.poster}</div>
+                    <div class="movie-info">
+                        <h3>${movie.name}</h3>
+                        <p class="movie-genre">${movie.genre}</p>
+                        <div class="movie-meta">
+                            <span>⭐ ${movie.rating}</span>
+                            <span>📅 ${movie.year}</span>
+                            <span>⏱️ ${movie.duration}</span>
+                        </div>
+                        <p class="movie-price">${currency}${movie.baseTicketPrice}</p>
+                        <button class="btn btn-primary" onclick="selectMovie(${movie.id})">Book Now</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function selectMovie(movieId) {
+            localStorage.setItem('selectedMovieId', movieId);
+            window.location.href = 'booking.html';
+        }
+    </script>
+</body>
+</html>
+                <div class="underline"></div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎬</div>
+                        <h3>Latest Movies</h3>
+                        <p>Access to the newest and most popular films</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎫</div>
+                        <h3>Easy Seat Selection</h3>
+                        <p>Interactive seat booking with real-time updates</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💳</div>
+                        <h3>Instant Booking</h3>
+                        <p>Quick and secure ticket booking process</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📱</div>
+                        <h3>Fully Responsive</h3>
+                        <p>Book tickets on any device, anywhere</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2026 Cinemagic. All rights reserved. | Crafting the Ultimate Browser-Based Movie Experience</p>
+            </div>
+        </footer>
+    </div>
+
+    
+    <div id="movies-page" class="page">
+        <section class="movies-list-section">
+            <div class="container">
+                <h2 class="section-title">Now Showing</h2>
+                <div class="underline"></div>
+                
+                
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterMovies('all')">All Movies</button>
+                    <button class="filter-btn" onclick="filterMovies('Sci-Fi')">Sci-Fi</button>
+                    <button class="filter-btn" onclick="filterMovies('Action')">Action</button>
+                    <button class="filter-btn" onclick="filterMovies('Drama')">Drama</button>
+                    <button class="filter-btn" onclick="filterMovies('Crime')">Crime</button>
+                </div>
+
+                
+                <div id="all-movies" class="movies-grid">
+                    
+                </div>
+            </div>
+        </section>
+
+        
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2026 Cinemagic. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    
+    <div id="booking-page" class="page">
+        <section class="booking-section">
+            <div class="container">
+                <div class="booking-container">
+                    
+                    <div class="movie-poster-container">
+                        <div id="selected-movie-poster" class="movie-poster-large"></div>
+                    </div>
+
+                    <div class="movie-details-container">
+                        <h2 id="selected-movie-title">Movie Title</h2>
+                        <div class="movie-meta">
+                            <span id="selected-movie-rating" class="rating">⭐ 0.0/10</span>
+                            <span id="selected-movie-year" class="year">📅 2024</span>
+                            <span id="selected-movie-duration" class="duration">⏱️ 120 min</span>
+                            <span id="selected-movie-genre" class="genre">🎭 Genre</span>
+                        </div>
+
+                        <div class="movie-info">
+                            <h3>Overview</h3>
+                            <p id="selected-movie-overview"></p>
+
+                            <h3>Director</h3>
+                            <p id="selected-movie-director" class="director"></p>
+
+                            <h3>Cast</h3>
+                            <p id="selected-movie-cast" class="cast"></p>
+
+                            <h3>Language</h3>
+                            <p id="selected-movie-language" class="language"></p>
+
+                            <h3 class="ticket-price-label">Ticket Price: <span id="selected-movie-price">৳0</span></h3>
+                        </div>
+
+                        
+                        <div class="showtime-selection">
+                            <h3 class="section-title-small">Select Showtime</h3>
+                            <div class="underline-small"></div>
+
+                            
+                            <div class="date-selection">
+                                <h4>Choose Date</h4>
+                                <div id="date-buttons" class="date-buttons">
+                                    
+                                </div>
+                            </div>
+
+                            
+                            <div class="time-selection">
+                                <h4>Choose Time</h4>
+                                <div id="time-buttons" class="time-buttons">
+                                    
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" onclick="proceedToSeatSelection()">Proceed to Seat Selection</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2026 Cinemagic. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    
+    <div id="seat-page" class="page">
+        <section class="seat-selection-section">
+            <div class="container">
+                <h2 class="section-title">Select Your Seats</h2>
+                <div class="underline"></div>
+
+                
+                <div class="booking-info-display">
+                    <div class="info-item">
+                        <strong>Movie:</strong> <span id="info-movie"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Date:</strong> <span id="info-date"></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Time:</strong> <span id="info-time"></span>
+                    </div>
+                </div>
+
+                
+                <div class="seat-layout-wrapper">
+                    <div class="screen">SCREEN</div>
+                    
+                    <div class="seat-legend">
+                        <div class="legend-item">
+                            <div class="seat available"></div>
+                            <span>Available</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="seat selected"></div>
+                            <span>Selected</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="seat booked"></div>
+                            <span>Booked</span>
+                        </div>
+                    </div>
+
+                    <div id="seat-grid" class="seat-grid">
+                        
+                    </div>
+                </div>
+
+                
+                <div class="booking-summary">
+                    <h3>Booking Summary</h3>
+                    <div class="summary-row">
+                        <span>Selected Seats:</span>
+                        <span id="selected-seats-display">None</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Number of Tickets:</span>
+                        <span id="ticket-count">0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Price per Ticket:</span>
+                        <span id="price-per-ticket">৳0</span>
+                    </div>
+                    <div class="summary-row total-row">
+                        <span>Total Amount:</span>
+                        <span id="total-amount">৳0.00</span>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="proceedToPayment()">Proceed to Payment</button>
+                </div>
+            </div>
+        </section>
+
+        
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2026 Cinemagic. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    
+    <div id="payment-page" class="page">
+        <section class="payment-section">
+            <div class="container">
+                <h2 class="section-title">Payment</h2>
+                <div class="underline"></div>
+
+                <div class="payment-container">
+                    
+                    <div class="payment-summary">
+                        <h3>Booking Summary</h3>
+                        <div class="summary-detail">
+                            <strong>Movie:</strong> <span id="payment-movie"></span>
+                        </div>
+                        <div class="summary-detail">
+                            <strong>Date & Time:</strong> <span id="payment-datetime"></span>
+                        </div>
+                        <div class="summary-detail">
+                            <strong>Selected Seats:</strong> <span id="payment-seats"></span>
+                        </div>
+                        <div class="summary-detail">
+                            <strong>Number of Tickets:</strong> <span id="payment-ticket-count"></span>
+                        </div>
+                        <div class="summary-detail total-detail">
+                            <strong>Total Price:</strong> <span id="payment-total">৳0.00</span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="payment-method">
+                        <h3>Payment Method</h3>
+                        
+                        <div class="payment-option">
+                            <div class="bkash-header">
+                                <span class="bkash-logo">bKash</span>
+                            </div>
+                            
+                            <div class="payment-instructions">
+                                <p><strong>Payment Instructions:</strong></p>
+                                <ol>
+                                    <li>Open your bKash app</li>
+                                    <li>Send money to: <strong>01400353486</strong></li>
+                                    <li>Amount: <strong><span id="bkash-amount">৳0.00</span></strong></li>
+                                    <li>Enter the Transaction ID below</li>
+                                </ol>
+                            </div>
+
+                            <div class="bkash-number">
+                                <strong>bKash Number:</strong> <span class="highlight-number">01400353486</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="transaction-id">Transaction ID <span class="required">*</span></label>
+                                <input 
+                                    type="text" 
+                                    id="transaction-id" 
+                                    placeholder="Enter your bKash transaction ID"
+                                    class="form-input"
+                                >
+                                <span id="transaction-error" class="error-message"></span>
+                            </div>
+
+                            <button class="btn btn-primary btn-block" onclick="confirmBooking()">Confirm Booking</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2026 Cinemagic. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    
+    <div id="confirmation-page" class="page">
+        <section class="confirmation-section">
+            <div class="container">
+                <div class="confirmation-card">
+                    <div class="success-icon">✓</div>
+                    <h2 class="success-title">Your ticket has been booked successfully!</h2>
+                    <p class="success-message">Thank you for choosing Cinemagic. Your booking has been confirmed.</p>
+
+                    <div class="ticket-details">
+                        <h3>Booking Details</h3>
+                        <div class="ticket-info">
+                            <div class="ticket-row">
+                                <strong>Movie:</strong>
+                                <span id="confirm-movie"></span>
+                            </div>
+                            <div class="ticket-row">
+                                <strong>Date:</strong>
+                                <span id="confirm-date"></span>
+                            </div>
+                            <div class="ticket-row">
+                                <strong>Time:</strong>
+                                <span id="confirm-time"></span>
+                            </div>
+                            <div class="ticket-row">
+                                <strong>Seats:</strong>
+                                <span id="confirm-seats"></span>
+                            </div>
+                            <div class="ticket-row">
+                                <strong>Number of Tickets:</strong>
+                                <span id="confirm-ticket-count"></span>
+                            </div>
+                            <div class="ticket-row">
+                                <strong>Transaction ID:</strong>
+                                <span id="confirm-transaction"></span>
+                            </div>
+                            <div class="ticket-row total-row">
+                                <strong>Total Paid:</strong>
+                                <span id="confirm-total"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="confirmation-actions">
+                        <button class="btn btn-primary" onclick="resetAndGoHome()">Book Another Movie</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2026 Cinemagic. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    
+    <div id="about-page" class="page">
+        <section class="about-section">
+            <div class="container">
+                <h2 class="section-title">About Cinemagic</h2>
+                <div class="underline"></div>
+                <div class="about-content">
+                    <p>CINEMAGIC is your ultimate destination for hassle-free movie ticket booking. We bring the cinema experience right to your fingertips with our easy-to-use platform.</p>
+                    <p>Founded in 2026, we're dedicated to making movie-going more convenient and enjoyable for everyone. Our mission is to provide the best movie booking experience with the latest technology and user-friendly interface.</p>
+                    <h3>Our Features:</h3>
+                    <ul>
+                        <li>Wide selection of latest movies</li>
+                        <li>Interactive seat selection</li>
+                        <li>Multiple payment options</li>
+                        <li>Instant booking confirmation</li>
+                        <li>100% responsive design</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2026 Cinemagic. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    
+    <div id="contact-page" class="page">
+        <section class="contact-section">
+            <div class="container">
+                <h2 class="section-title">Contact Us</h2>
+                <div class="underline"></div>
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <h3>Get in Touch</h3>
+                        <p><strong>Email:</strong> support@cinemagic.com</p>
+                        <p><strong>Phone:</strong> +880 1400-353486</p>
+                        <p><strong>Address:</strong> Dhaka, Bangladesh</p>
+                        <p><strong>Business Hours:</strong> 24/7 Online Support</p>
+                    </div>
+                    <div class="contact-form">
+                        <h3>Send us a message</h3>
+                        <form onsubmit="return handleContactForm(event)">
+                            <div class="form-group">
+                                <input type="text" placeholder="Your Name" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="email" placeholder="Your Email" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <textarea placeholder="Your Message" class="form-input" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <footer class="footer">
+            <div class="container">
+                <p>&copy; 2026 Cinemagic. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    
+    <script src="script.js"></script>
+</body>
+</html>
