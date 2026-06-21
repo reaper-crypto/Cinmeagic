@@ -1,0 +1,238 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CINEMAGIC - Select Seats</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" style="text-decoration: none;"><h1 class="logo">CINEMAGIC</h1></a>
+                <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="index.html">Movies</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    
+    <section class="seat-section">
+        <div class="container">
+            <h2 class="section-title">Select Your Seats</h2>
+            <div class="underline"></div>
+
+            
+            <div class="booking-info" id="booking-info">
+                
+            </div>
+
+            
+            <div class="seat-layout-wrapper">
+                <div class="screen">SCREEN</div>
+                
+                
+                <div class="seat-legend" id="seat-legend">
+                    <div class="legend-item">
+                        <div class="seat available"></div>
+                        <span>Available</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="seat selected"></div>
+                        <span>Selected</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="seat booked"></div>
+                        <span>Booked</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="seat premium"></div>
+                        <span>Premium</span>
+                    </div>
+                </div>
+
+                
+                <div id="seat-grid" class="seat-grid">
+                    
+                </div>
+            </div>
+
+            
+            <div class="booking-summary">
+                <h3>Booking Summary</h3>
+                <div class="summary-row">
+                    <span>Selected Seats:</span>
+                    <span id="selected-seats-display">None</span>
+                </div>
+                <div class="summary-row">
+                    <span>Number of Tickets:</span>
+                    <span id="ticket-count">0</span>
+                </div>
+                <div class="summary-row total-row">
+                    <span>Total Amount:</span>
+                    <span id="total-amount">৳0.00</span>
+                </div>
+                <button class="btn btn-primary btn-large" onclick="proceedToPayment()">Proceed to Payment</button>
+            </div>
+        </div>
+    </section>
+
+    
+    <footer class="footer">
+        <div class="container">
+            <p></p>
+        </div>
+    </footer>
+
+    
+    <script src="script.js"></script>
+    <script>
+        let jsonData = null;
+        let selectedSeats = [];
+        let movieData = null;
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            jsonData = await loadJSONData();
+            if (jsonData) {
+                displayBookingInfo(jsonData);
+                await generateSeats(jsonData);
+                updateUIFromJSON(jsonData);
+            }
+        });
+        function displayBookingInfo(data) {
+            const movieId = parseInt(localStorage.getItem('selectedMovieId'));
+            movieData = data.movies.find(m => m.id === movieId);
+            const selectedDate = localStorage.getItem('selectedDate');
+            const selectedTime = localStorage.getItem('selectedTime');
+
+            document.getElementById('booking-info').innerHTML = `
+                <div class="info-item"><strong>Movie:</strong> ${movieData.name}</div>
+                <div class="info-item"><strong>Date:</strong> ${formatDate(selectedDate)}</div>
+                <div class="info-item"><strong>Time:</strong> ${selectedTime}</div>
+            `;
+        }
+        async function generateSeats(data) {
+            const seatGrid = document.getElementById('seat-grid');
+            const config = data.seatConfiguration;
+            const rows = config.rows;
+            const seatsPerRow = config.seatsPerRow;
+
+            const movieId = parseInt(localStorage.getItem('selectedMovieId'));
+            const selectedDate = localStorage.getItem('selectedDate');
+            const selectedTime = localStorage.getItem('selectedTime');
+            const prebooked = await fetchBookedSeats(movieId, selectedDate, selectedTime);
+
+            seatGrid.innerHTML = rows.map(row => {
+                let seatsHTML = '';
+                for (let i = 1; i <= seatsPerRow; i++) {
+                    const seatId = `${row}${i}`;
+                    const isBooked = prebooked.includes(seatId);
+                    const isPremium = config.seatTypes.premium.rows.includes(row);
+                    
+                    let seatClass = isBooked ? 'booked' : 'available';
+                    if (isPremium && !isBooked) {
+                        seatClass += ' premium';
+                    }
+                    
+                    seatsHTML += `
+                        <div class="seat ${seatClass}" 
+                             data-seat="${seatId}" 
+                             data-row="${row}"
+                             onclick="toggleSeat('${seatId}', '${row}')">
+                            ${i}
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="seat-row">
+                        <span class="row-label">${row}</span>
+                        ${seatsHTML}
+                    </div>
+                `;
+            }).join('');
+        }
+        function toggleSeat(seatId, row) {
+            const seatElement = document.querySelector(`[data-seat="${seatId}"]`);
+            if (seatElement.classList.contains('booked')) {
+                return;
+            }
+
+            if (selectedSeats.includes(seatId)) {
+                selectedSeats = selectedSeats.filter(s => s !== seatId);
+                seatElement.classList.remove('selected');
+                seatElement.classList.add('available');
+            } else {
+                selectedSeats.push(seatId);
+                seatElement.classList.remove('available');
+                seatElement.classList.add('selected');
+            }
+
+            updateSummary();
+        }
+        function updateSummary() {
+            const config = jsonData.seatConfiguration;
+            const basePrice = movieData.baseTicketPrice;
+            let totalAmount = 0;
+            selectedSeats.forEach(seatId => {
+                const seatElement = document.querySelector(`[data-seat="${seatId}"]`);
+                const rowLetter = seatElement.dataset.row;
+                let multiplier = 1.0;
+                if (config.seatTypes.premium.rows.includes(rowLetter)) {
+                    multiplier = config.seatTypes.premium.priceMultiplier;
+                } else if (config.seatTypes.regular.rows.includes(rowLetter)) {
+                    multiplier = config.seatTypes.regular.priceMultiplier;
+                }
+                
+                totalAmount += basePrice * multiplier;
+            });
+
+            const currency = jsonData.currency.symbol;
+            document.getElementById('selected-seats-display').textContent = 
+                selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None';
+            document.getElementById('ticket-count').textContent = selectedSeats.length;
+            document.getElementById('total-amount').textContent = `${currency}${totalAmount.toFixed(2)}`;
+        }
+        function proceedToPayment() {
+            if (selectedSeats.length === 0) {
+                alert('Please select at least one seat');
+                return;
+            }
+            const config = jsonData.seatConfiguration;
+            const basePrice = movieData.baseTicketPrice;
+            let totalAmount = 0;
+            
+            selectedSeats.forEach(seatId => {
+                const seatElement = document.querySelector(`[data-seat="${seatId}"]`);
+                const rowLetter = seatElement.dataset.row;
+                let multiplier = 1.0;
+                
+                if (config.seatTypes.premium.rows.includes(rowLetter)) {
+                    multiplier = config.seatTypes.premium.priceMultiplier;
+                }
+                
+                totalAmount += basePrice * multiplier;
+            });
+            localStorage.setItem('selectedSeats', JSON.stringify(selectedSeats));
+            localStorage.setItem('totalPrice', totalAmount.toFixed(2));
+            window.location.href = 'payment.html';
+        }
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,217 +1,1564 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CINEMAGIC - Payment</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+﻿
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
     
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-wrapper">
-                <a href="index.html" style="text-decoration: none;"><h1 class="logo">CINEMAGIC</h1></a>
-                <button class="hamburger" id="hamburger" aria-label="Toggle menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-                <ul class="nav-menu" id="nav-menu">
-                    <li><a href="index.html">Movies</a></li>
-                    <li><a href="#about">About Us</a></li>
-                    <li><a href="#contact">Contact Us</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
+    --primary-color: #e50914;
+    --secondary-color: #ff1f1f;
+    --dark-bg: #141414;
+    --darker-bg: #0a0a0a;
+    --card-bg: #1f1f1f;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --border-color: #333;
+    --success-color: #00d800;
     
-    <section class="payment-section">
-        <div class="container">
-            <h2 class="section-title">Payment</h2>
-            <div class="underline"></div>
+    --seat-available: #ff3838;
+    --seat-selected: #4a90e2;
+    --seat-booked: #666;
+    --gradient-bg: linear-gradient(135deg, #1f1f1f 0%, #0a0a0a 100%);
+}
 
-            <div class="payment-container">
-                
-                <div class="payment-summary">
-                    <h3>Booking Summary</h3>
-                    <div id="booking-summary-content">
-                        
-                    </div>
-                </div>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
 
-                
-                <div class="payment-method">
-                    <h3>Payment Method</h3>
-                    <div id="payment-method-content">
-                        
-                    </div>
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
 
-                    <div class="form-group">
-                        <label for="customer-name">Your Name <span class="required">*</span></label>
-                        <input 
-                            type="text" 
-                            id="customer-name" 
-                            class="form-input"
-                            placeholder="Enter your full name"
-                        >
-                        <span id="name-error" class="error-message"></span>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="customer-phone">Phone Number <span class="required">*</span></label>
-                        <input 
-                            type="tel" 
-                            id="customer-phone" 
-                            class="form-input"
-                            placeholder="Enter your phone number"
-                        >
-                        <span id="phone-error" class="error-message"></span>
-                    </div>
+.navbar {
+    background-color: var(--darker-bg);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    border-bottom: 2px solid var(--primary-color);
+}
 
-                    <div class="form-group">
-                        <label for="transaction-id">Transaction ID <span class="required">*</span></label>
-                        <input 
-                            type="text" 
-                            id="transaction-id" 
-                            class="form-input"
-                            placeholder="Enter your transaction ID"
-                        >
-                        <span id="transaction-error" class="error-message"></span>
-                    </div>
+.nav-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-                    <button class="btn btn-primary btn-large" onclick="confirmBooking()">Confirm Booking</button>
-                </div>
-            </div>
-        </div>
-    </section>
+.logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    letter-spacing: 2px;
+}
 
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+.nav-menu li a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: color 0.3s;
+    position: relative;
+}
+
+.nav-menu li a:hover {
+    color: var(--primary-color);
+}
+
+.nav-menu li a.active {
+    color: var(--text-primary);
+}
+
+.nav-menu li a.active:hover {
+    color: var(--primary-color);
+}
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    z-index: 1002;
+    position: relative;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background-color: var(--text-primary);
+    margin: 3px 0;
+    transition: all 0.3s;
+    border-radius: 3px;
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+
+.page {
+    display: none;
+    min-height: calc(100vh - 80px);
+}
+
+.page.active {
+    display: block;
+}
+
+
+.hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23141414"/></svg>');
+    background-size: cover;
+    background-position: center;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-bottom: 3px solid var(--primary-color);
+}
+
+.hero-content {
+    max-width: 800px;
+    padding: 2rem;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+
+.btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primary {
+    background-color: transparent;
+    color: var(--text-primary);
+    border: 2px solid var(--text-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-color);
+    color: var(--text-primary);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
+}
+
+.btn-block {
+    width: 100%;
+}
+
+
+.section-title {
+    font-size: 2.5rem;
+    text-align: center;
+    margin: 3rem 0 1rem;
+    font-weight: bold;
+}
+
+.section-title-small {
+    font-size: 1.8rem;
+    margin: 2rem 0 1rem;
+}
+
+.underline {
+    width: 100px;
+    height: 4px;
+    background-color: var(--primary-color);
+    margin: 0 auto 3rem;
+}
+
+.underline-small {
+    width: 80px;
+    height: 3px;
+    background-color: var(--primary-color);
+    margin: 0 0 1.5rem;
+}
+
+
+.trending-section {
+    padding: 4rem 0;
+    background-color: var(--darker-bg);
+}
+
+
+.movies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.movie-card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+}
+
+.movie-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(229, 9, 20, 0.3);
+}
+
+.movie-poster {
+    width: 100%;
+    height: 350px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.movie-info {
+    padding: 1.5rem;
+}
+
+.movie-info h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.movie-genre {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.movie-rating {
+    color: #ffd700;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+
+.movie-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.movie-meta-info {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.movie-price {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.movie-card .btn {
+    width: 100%;
+}
+
+
+.features-section {
+    padding: 4rem 0;
+    background-color: var(--dark-bg);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background-color: var(--card-bg);
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.feature-card p {
+    color: var(--text-secondary);
+}
+
+
+.movies-list-section {
+    padding: 3rem 0;
+    min-height: calc(100vh - 200px);
+}
+
+.filter-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 10px 25px;
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.filter-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.filter-btn.active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--text-primary);
+}
+
+
+.booking-section {
+    padding: 3rem 0;
+}
+
+.booking-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 3rem;
+    margin-top: 2rem;
+}
+
+.movie-poster-container {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.movie-poster-large {
+    width: 100%;
+    height: 500px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.movie-details-container {
+    background-color: var(--card-bg);
+    padding: 2rem;
+    border-radius: 10px;
+}
+
+.movie-details-container h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.movie-meta {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.movie-meta span {
+    font-size: 0.95rem;
+}
+
+.rating {
+    color: #ffd700;
+}
+
+.movie-info h3 {
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.movie-info p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+
+.director,
+.cast,
+.language {
+    color: var(--text-primary) !important;
+}
+
+.ticket-price-label {
+    margin-top: 2rem;
+    font-size: 1.5rem;
+}
+
+#selected-movie-price {
+    color: var(--primary-color);
+}
+
+
+.showtime-selection {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border-color);
+}
+
+.date-selection,
+.time-selection {
+    margin-bottom: 2rem;
+}
+
+.date-selection h4,
+.time-selection h4 {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.date-buttons,
+.time-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.date-btn,
+.time-btn {
+    padding: 12px 20px;
+    background-color: var(--darker-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.date-btn:hover,
+.time-btn:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.date-btn.selected,
+.time-btn.selected {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+
+.seat-selection-section {
+    padding: 3rem 0;
+}
+
+.booking-info-display {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.info-item {
+    font-size: 1rem;
+}
+
+.info-item strong {
+    color: var(--primary-color);
+    margin-right: 0.5rem;
+}
+
+.seat-layout-wrapper {
+    background-color: var(--card-bg);
+    padding: 3rem 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+
+.screen {
+    background-color: var(--text-primary);
+    color: var(--dark-bg);
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 3rem;
+    border-radius: 10px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+}
+
+.seat-legend {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 2rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.seat-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.seat-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.row-label {
+    font-weight: bold;
+    width: 30px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.seat {
+    width: 40px;
+    height: 40px;
+    background-color: var(--seat-available);
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.seat:hover:not(.booked) {
+    transform: scale(1.1);
+}
+
+.seat.selected {
+    background-color: var(--seat-selected);
+}
+
+.seat.booked {
+    background-color: var(--seat-booked);
+    cursor: not-allowed;
+}
+
+.seat.premium {
+    background-color: #18af1f;
+}
+
+.seat.premium.selected {
+    background-color: var(--seat-selected);
+}
+
+
+.booking-summary {
+    background-color: var(--card-bg);
+    padding: 2rem;
+    border-radius: 10px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.booking-summary h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.total-row {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    border-bottom: none;
+    margin-top: 1rem;
+}
+
+.booking-summary .btn {
+    margin-top: 1.5rem;
+}
+
+
+.payment-section {
+    padding: 3rem 0;
+}
+
+.payment-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-top: 2rem;
+}
+
+.payment-summary,
+.payment-method {
+    background-color: var(--card-bg);
+    padding: 2rem;
+    border-radius: 10px;
+}
+
+.payment-summary h3,
+.payment-method h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.summary-detail {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.summary-detail strong {
+    display: inline-block;
+    width: 180px;
+    color: var(--text-secondary);
+}
+
+.total-detail {
+    font-size: 1.3rem;
+    color: var(--primary-color);
+    font-weight: bold;
+    border-bottom: none;
+    margin-top: 1.5rem;
+}
+
+.payment-option {
+    margin-top: 1.5rem;
+}
+
+.bkash-header {
+    background: linear-gradient(135deg, #d32f2f 0%, #e91e63 100%);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.bkash-logo {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.payment-instructions {
+    background-color: var(--darker-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.payment-instructions p {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.payment-instructions ol {
+    margin-left: 1.5rem;
+    margin-top: 1rem;
+}
+
+.payment-instructions li {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.bkash-number {
+    background-color: var(--darker-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.highlight-number {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.required {
+    color: var(--primary-color);
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--darker-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.error-message {
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    display: block;
+    margin-top: 0.5rem;
+}
+
+
+.confirmation-section {
+    padding: 3rem 0;
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirmation-card {
+    background-color: var(--card-bg);
+    padding: 3rem;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 600px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.success-icon {
+    width: 100px;
+    height: 100px;
+    background-color: var(--success-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: var(--text-primary);
+    margin: 0 auto 2rem;
+    animation: scaleIn 0.5s ease-in-out;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.success-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--success-color);
+}
+
+.success-message {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.ticket-details {
+    background-color: var(--darker-bg);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+
+.ticket-details h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.ticket-info {
+    text-align: left;
+}
+
+.ticket-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ticket-row strong {
+    color: var(--text-secondary);
+}
+
+.ticket-row.total-row {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    border-bottom: none;
+    margin-top: 1rem;
+}
+
+.important-info {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 3px solid #ffd700;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.important-info h3 {
+    color: #ffd700;
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+.important-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.important-info li {
+    color: #e0e0e0;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    position: relative;
+    line-height: 1.6;
+}
+
+.important-info li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #ffd700;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.confirmation-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.confirmation-actions .btn {
+    flex: 1;
+    max-width: 250px;
+}
+
+
+
+
+.movie-details-card {
+    background-color: var(--card-bg);
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.movie-poster-small {
+    width: 150px;
+    height: 200px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.movie-info-detailed {
+    flex: 1;
+}
+
+.movie-info-detailed h2 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.movie-info-detailed p {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.price-info {
+    color: var(--primary-color) !important;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-top: 1rem !important;
+}
+
+
+.selection-group {
+    margin-bottom: 2rem;
+}
+
+.selection-group h3 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+
+.btn-large {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1rem;
+    margin-top: 2rem;
+}
+
+
+.movies-section {
+    padding: 3rem 0;
+    min-height: calc(100vh - 200px);
+}
+
+
+.payment-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-top: 2rem;
+}
+
+
+.amount-display {
+    background-color: var(--darker-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.highlight-amount {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: block;
+    margin-top: 0.5rem;
+}
+
+
+.seat-section {
+    padding: 3rem 0;
+    min-height: calc(100vh - 200px);
+}
+
+
+@media (max-width: 768px) {
+    .movie-details-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .payment-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.about-section {
+    padding: 4rem 0;
+    background: var(--gradient-bg);
+}
+
+.about-content {
+    margin-top: 2rem;
+}
+
+.about-text {
+    color: var(--text-primary);
+    line-height: 1.8;
+}
+
+.about-text p {
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.about-text h3 {
+    color: var(--primary-color);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.about-features {
+    list-style: none;
+    margin: 1.5rem 0;
+}
+
+.about-features li {
+    padding: 0.8rem 0;
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    border-left: 3px solid var(--primary-color);
+    padding-left: 1rem;
+    margin-bottom: 1rem;
+    transition: transform 0.3s;
+}
+
+.about-features li:hover {
+    transform: translateX(10px);
+}
+
+
+.contact-section {
+    padding: 4rem 0;
+    background-color: var(--dark-bg);
+}
+
+.contact-content {
+    margin-top: 2rem;
+}
+
+.contact-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.info-card {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(229, 9, 20, 0.3);
+}
+
+.info-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.info-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.info-card p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+
+.contact-form-wrapper {
+    background: var(--card-bg);
+    padding: 2.5rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.contact-form-wrapper h3 {
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: var(--darker-bg);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.contact-form .btn-primary {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+
+.footer {
+    background-color: var(--darker-bg);
+    padding: 2rem 0;
+    text-align: center;
+    border-top: 2px solid var(--primary-color);
+    margin-top: 3rem;
+}
+
+.footer p {
+    color: var(--text-secondary);
+}
+
+
+@media (max-width: 768px) {
+    .hamburger {
+        display: flex;
+    }
+
+    .nav-menu {
+        position: fixed;
+        left: -100%;
+        top: 70px;
+        flex-direction: column;
+        background-color: var(--darker-bg);
+        width: 100%;
+        text-align: center;
+        transition: left 0.3s;
+        box-shadow: 0 10px 27px rgba(0, 0, 0, 0.5);
+        padding: 2rem 0;
+        gap: 0;
+        z-index: 1001;
+    }
+
+    .nav-menu.active {
+        left: 0;
+    }
+
+    .nav-menu li {
+        margin: 1rem 0;
+    }
+
+    .nav-menu li a {
+        font-size: 1.1rem;
+        padding: 0.5rem;
+        display: block;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+    }
+
+    .nav-menu {
+        gap: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .movies-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .booking-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .movie-poster-container {
+        position: static;
+    }
+
+    .movie-poster-large {
+        height: 400px;
+    }
+
+    .payment-container {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-content {
+        grid-template-columns: 1fr;
+    }
+
+    .seat {
+        width: 35px;
+        height: 35px;
+        font-size: 0.7rem;
+    }
+
+    .seat-legend {
+        gap: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .confirmation-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 2.5rem;
+    }
+
+    .success-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 1.5rem;
+    }
+
+    .nav-menu {
+        gap: 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .hero {
+        height: 400px;
+    }
+
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .movies-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-buttons {
+        gap: 0.5rem;
+    }
+
+    .filter-btn {
+        padding: 8px 15px;
+        font-size: 0.85rem;
+    }
+
+    .date-buttons,
+    .time-buttons {
+        gap: 0.5rem;
+    }
+
+    .date-btn,
+    .time-btn {
+        padding: 10px 15px;
+        font-size: 0.85rem;
+    }
+
+    .seat {
+        width: 30px;
+        height: 30px;
+        font-size: 0.65rem;
+        gap: 8px;
+    }
+
+    .row-label {
+        width: 25px;
+    }
+
+    .booking-info-display {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .movie-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .contact-info {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-form-wrapper {
+        padding: 1.5rem;
+    }
+
+    .about-features li {
+        font-size: 0.95rem;
+    }
+
+    .info-card {
+        padding: 1.5rem;
+    }
+}
+
+
+@media print {
     
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 CINEMAGIC. All rights reserved.</p>
-        </div>
-    </footer>
-
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
     
-    <script src="script.js"></script>
-    <script>
-        let jsonData = null;
-
-        document.addEventListener('DOMContentLoaded', async function() {
-            jsonData = await loadJSONData();
-            if (jsonData) {
-                displayBookingSummary(jsonData);
-                displayPaymentMethod(jsonData);
-                updateUIFromJSON(jsonData);
-            }
-        });
-        function displayBookingSummary(data) {
-            const movieId = parseInt(localStorage.getItem('selectedMovieId'));
-            const movie = data.movies.find(m => m.id === movieId);
-            const selectedDate = localStorage.getItem('selectedDate');
-            const selectedTime = localStorage.getItem('selectedTime');
-            const selectedSeats = JSON.parse(localStorage.getItem('selectedSeats') || '[]');
-            const totalPrice = localStorage.getItem('totalPrice');
-            const currency = data.currency.symbol;
-
-            document.getElementById('booking-summary-content').innerHTML = `
-                <div class="summary-detail">
-                    <strong>Movie:</strong> <span>${movie.name}</span>
-                </div>
-                <div class="summary-detail">
-                    <strong>Date & Time:</strong> <span>${formatDate(selectedDate)} at ${selectedTime}</span>
-                </div>
-                <div class="summary-detail">
-                    <strong>Selected Seats:</strong> <span>${selectedSeats.join(', ')}</span>
-                </div>
-                <div class="summary-detail">
-                    <strong>Number of Tickets:</strong> <span>${selectedSeats.length}</span>
-                </div>
-                <div class="summary-detail total-detail">
-                    <strong>Total Price:</strong> <span>${currency}${totalPrice}</span>
-                </div>
-            `;
-        }
-        function displayPaymentMethod(data) {
-            const payment = data.payment;
-            const totalPrice = localStorage.getItem('totalPrice');
-            const currency = data.currency.symbol;
-
-            const instructionsHTML = payment.paymentInstructions.map((instruction, index) => 
-                `<li>${instruction}</li>`
-            ).join('');
-
-            document.getElementById('payment-method-content').innerHTML = `
-                <div class="payment-option">
-                    <div class="bkash-header">
-                        <span class="bkash-logo">${payment.methodName}</span>
-                    </div>
-                    
-                    <div class="payment-instructions">
-                        <p><strong>Payment Instructions:</strong></p>
-                        <ol>
-                            ${instructionsHTML}
-                        </ol>
-                    </div>
-
-                    <div class="bkash-number">
-                        <strong>${payment.methodName} Number:</strong> 
-                        <span class="highlight-number">${payment.bkashNumber}</span>
-                    </div>
-
-                    <div class="amount-display">
-                        <strong>Amount to Send:</strong> 
-                        <span class="highlight-amount">${currency}${totalPrice}</span>
-                    </div>
-                </div>
-            `;
-        }
-        function confirmBooking() {
-            const customerName = document.getElementById('customer-name').value.trim();
-            const customerPhone = document.getElementById('customer-phone').value.trim();
-            const transactionId = document.getElementById('transaction-id').value.trim();
-            
-            const nameError = document.getElementById('name-error');
-            const phoneError = document.getElementById('phone-error');
-            const transactionError = document.getElementById('transaction-error');
-            nameError.textContent = '';
-            phoneError.textContent = '';
-            transactionError.textContent = '';
-
-            let isValid = true;
-            if (!customerName) {
-                nameError.textContent = 'Please enter your name';
-                isValid = false;
-            }
-            if (!customerPhone) {
-                phoneError.textContent = 'Please enter your phone number';
-                isValid = false;
-            }
-            const minLength = jsonData.payment.transactionIdMinLength;
-            if (!transactionId) {
-                transactionError.textContent = 'Please enter the transaction ID';
-                isValid = false;
-            } else if (transactionId.length < minLength) {
-                transactionError.textContent = `Transaction ID must be at least ${minLength} characters`;
-                isValid = false;
-            }
-
-            if (!isValid) {
-                return;
-            }
-            localStorage.setItem('customerName', customerName);
-            localStorage.setItem('customerPhone', customerPhone);
-            localStorage.setItem('transactionId', transactionId);
-            window.location.href = 'confirmation.html';
-        }
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-        }
-    </script>
-</body>
-</html>
+    
+    @page {
+        size: A4 portrait;
+        margin: 1.5cm;
+    }
+    
+    
+    .navbar,
+    .footer {
+        display: none !important;
+    }
+    
+    
+    body {
+        background-color: var(--dark-bg) !important;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .confirmation-section {
+        padding: 0 !important;
+        min-height: auto !important;
+        page-break-after: avoid;
+        display: block !important;
+        align-items: flex-start !important;
+    }
+    
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .confirmation-card {
+        background-color: var(--card-bg) !important;
+        box-shadow: none !important;
+        padding: 1.5rem !important;
+        page-break-inside: avoid;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    
+    .success-icon {
+        background-color: var(--success-color) !important;
+        color: var(--text-primary) !important;
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 2.5rem !important;
+        margin: 0 auto 1rem !important;
+    }
+    
+    .success-title {
+        color: var(--success-color) !important;
+        font-size: 1.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .success-message {
+        color: var(--text-secondary) !important;
+        margin-bottom: 1.5rem !important;
+        font-size: 0.95rem !important;
+    }
+    
+    
+    .ticket-details {
+        background-color: var(--darker-bg) !important;
+        page-break-inside: avoid;
+        padding: 1.2rem !important;
+        margin-bottom: 1.2rem !important;
+    }
+    
+    .ticket-details h3 {
+        color: var(--primary-color) !important;
+        font-size: 1.2rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .ticket-row {
+        border-bottom: 1px solid var(--border-color) !important;
+        margin-bottom: 0.7rem !important;
+        padding-bottom: 0.4rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .ticket-row strong {
+        color: var(--text-secondary) !important;
+    }
+    
+    .ticket-row span {
+        color: var(--text-primary) !important;
+    }
+    
+    .ticket-row.total-row {
+        color: var(--primary-color) !important;
+        font-size: 1.1rem !important;
+        margin-top: 0.7rem !important;
+    }
+    
+    
+    .important-info {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+        border: 3px solid #ffd700 !important;
+        page-break-inside: avoid;
+        padding: 1.2rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .important-info h3 {
+        color: #ffd700 !important;
+        font-size: 1.1rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .important-info ul {
+        margin: 0 !important;
+    }
+    
+    .important-info li {
+        color: #e0e0e0 !important;
+        font-size: 0.85rem !important;
+        margin-bottom: 0.6rem !important;
+        line-height: 1.4 !important;
+    }
+    
+    .important-info li:before {
+        color: #ffd700 !important;
+    }
+    
+    
+    .confirmation-actions {
+        display: none !important;
+    }
+}
